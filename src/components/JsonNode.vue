@@ -3,7 +3,7 @@
     class="tagCard"
     :style="styleObj"
     @mousedown="(event) => changeClass(event)"
-    @click="(event) => selectNode(node._attributes, parentKey, event)"
+    @click="(event) => selectNode(parentKey, event)"
   >
     <div v-show="parentNode">
       <i v-show="!isOpen" @click.stop="expand($event)"
@@ -207,7 +207,6 @@ export default defineComponent({
 
     const currTextNodeKv = ref<NodeKv>({});
     const selectNode = (
-      attributes: Record<string, any>,
       parentKey: string,
       event: Event
     ) => {
@@ -234,8 +233,19 @@ export default defineComponent({
       //this can work, but only to parent (if nested deeply)
       //emit("selectNode", attributes);
 
+      
+      //Props in Vue are designed to be a one - way data - binding mechanism 
+      //from the parent component to the child component. 
+      //Mutating a prop directly inside a child component violates the principle of 
+      //unidirectional data flow. 
+      if (!props.node._attributes) {
+        const newAttr: Record<string, any> = {_attributes: {}};        
+        //props.node._attributes = newAttr;
+        Object.assign(props.node, newAttr);
+      }
+      
       //this can emit to top parent
-      eventBus.emit("select_node", attributes);
+      eventBus.emit("select_node", props.node._attributes);
     };
 
     const styleObj = computed(() => {
