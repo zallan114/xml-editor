@@ -103,15 +103,30 @@ export default defineComponent({
       } else if (modalResult.nodeType === "_cdata") {
         parent[modalResult.nodeName] = { _cdata: modalResult.nodeValue };
       } else {
-        parent[modalResult.nodeName] = {};
+        //needs to know if this node is Array
+        if (parent[modalResult.nodeName]) {
+          if (Array.isArray(parent[modalResult.nodeName])) {
+            parent[modalResult.nodeName].push({});
+          } else {
+            const rst = window.confirm(
+              "The node name you are trying to add already exists, override it？"
+            );
+            if (rst) {
+              parent[modalResult.nodeName] = {};
+            } else {
+              return;
+            }
+          }
+        } else {
+          parent[modalResult.nodeName] = {};
+        }
       }
-
       eventBus.emit("add-tag", parent);
     };
 
     const addChild = () => {
       showModal.value = true;
-      isOpen.value = true;
+      //isOpen.value = true;
     };
 
     onMounted(() => {
