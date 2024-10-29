@@ -103,6 +103,8 @@ export default defineComponent({
       const parent = props.node || {};
       //add sub node here
 
+      eventBus.emit("add-tag", parent);
+      
       if (modalResult.nodeType === "_text") {
         parent[modalResult.nodeName] = { _text: modalResult.nodeValue };
       } else if (modalResult.nodeType === "_cdata") {
@@ -126,7 +128,7 @@ export default defineComponent({
           parent[modalResult.nodeName] = {};
         }
       }
-      eventBus.emit("add-tag", parent);
+      
     };
 
     const addChild = () => {
