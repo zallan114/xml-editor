@@ -12,15 +12,11 @@
       <i v-show="isOpen" @click.stop="expand($event)"
         ><FontAwesomeIcon :icon="faCaretDown"
       /></i>
-      
 
       <p class="cardText text-container">
         {{ parentKey }} <span class="grayColor"> {{ valText }} </span>
       </p>
 
-
-
-      
       <i
         class="floatRight marginRight"
         title="remove"
@@ -28,7 +24,10 @@
         ><FontAwesomeIcon :icon="faClose"
       /></i>
 
-      <i  class="floatRight marginRight" title="addChild" @click.stop="addChild()"
+      <i
+        class="floatRight marginRight"
+        title="addChild"
+        @click.stop="addChild()"
         ><FontAwesomeIcon :icon="faPlus"
       /></i>
     </div>
@@ -104,31 +103,36 @@ export default defineComponent({
       //add sub node here
 
       eventBus.emit("add-tag", parent);
-      
-      if (modalResult.nodeType === "_text") {
-        parent[modalResult.nodeName] = { _text: modalResult.nodeValue };
-      } else if (modalResult.nodeType === "_cdata") {
-        parent[modalResult.nodeName] = { _cdata: modalResult.nodeValue };
-      } else {
-        //needs to know if this node is Array
-        if (parent[modalResult.nodeName]) {
-          if (Array.isArray(parent[modalResult.nodeName])) {
-            parent[modalResult.nodeName].push({});
+
+      //needs to know if this node is Array
+      if (parent[modalResult.nodeName]) {
+        if (Array.isArray(parent[modalResult.nodeName])) {
+          if (modalResult.nodeType === "_text") {
+            parent[modalResult.nodeName].push({ _text: modalResult.nodeValue });
+          } else if (modalResult.nodeType === "_cdata") {
+            parent[modalResult.nodeName].push({
+              _cdata: modalResult.nodeValue,
+            });
           } else {
-            const rst = window.confirm(
-              "The node name you are trying to add already exists, override it？"
-            );
-            if (rst) {
-              parent[modalResult.nodeName] = {};
-            } else {
-              return;
-            }
+            parent[modalResult.nodeName].push({});
           }
         } else {
-          parent[modalResult.nodeName] = {};
+          const rst = window.confirm(
+            "The node name you are trying to add already exists, override it？"
+          );
+          if (rst) {
+            parent[modalResult.nodeName] = {};
+          } else {
+            return;
+          }
+        }
+      } else {
+        if (modalResult.nodeType === "_text") {
+          parent[modalResult.nodeName] = { _text: modalResult.nodeValue };
+        } else if (modalResult.nodeType === "_cdata") {
+          parent[modalResult.nodeName] = { _cdata: modalResult.nodeValue };
         }
       }
-      
     };
 
     const addChild = () => {
@@ -174,7 +178,7 @@ export default defineComponent({
 
     const hasChild = computed((): boolean => {
       for (const [key, value] of Object.entries(props.node)) {
-        if (key !== "_attributes" && key !== "_text" && key !== "_cdata") {
+        if (!key.startsWith("_")) {
           // Check if value represents a child element.
           // This depends on what the structure of value is.
           // For example, if value is an object and not null or undefined, it could be considered a child.
@@ -213,10 +217,7 @@ export default defineComponent({
     //const selectNode = (attributes: Record<string, any>) => {
 
     const currTextNodeKv = ref<NodeKv>({});
-    const selectNode = (
-      parentKey: string,
-      event: Event
-    ) => {
+    const selectNode = (parentKey: string, event: Event) => {
       if (!event) {
         return;
       }
@@ -240,17 +241,16 @@ export default defineComponent({
       //this can work, but only to parent (if nested deeply)
       //emit("selectNode", attributes);
 
-      
-      //Props in Vue are designed to be a one - way data - binding mechanism 
-      //from the parent component to the child component. 
-      //Mutating a prop directly inside a child component violates the principle of 
-      //unidirectional data flow. 
+      //Props in Vue are designed to be a one - way data - binding mechanism
+      //from the parent component to the child component.
+      //Mutating a prop directly inside a child component violates the principle of
+      //unidirectional data flow.
       if (!props.node._attributes) {
-        const newAttr: Record<string, any> = {_attributes: {}};        
+        const newAttr: Record<string, any> = { _attributes: {} };
         //props.node._attributes = newAttr;
         Object.assign(props.node, newAttr);
       }
-      
+
       //this can emit to top parent
       eventBus.emit("select_node", props.node._attributes);
     };
