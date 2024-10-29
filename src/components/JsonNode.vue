@@ -12,19 +12,24 @@
       <i v-show="isOpen" @click.stop="expand($event)"
         ><FontAwesomeIcon :icon="faCaretDown"
       /></i>
-      <i title="addChild" @click.stop="addChild()"
-        ><FontAwesomeIcon :icon="faPlus"
-      /></i>
+      
 
       <p class="cardText text-container">
         {{ parentKey }} <span class="grayColor"> {{ valText }} </span>
       </p>
 
+
+
+      
       <i
-        class="fa fa-close"
+        class="floatRight marginRight"
         title="remove"
         @click.stop="handleClickRemove(parentKey)"
         ><FontAwesomeIcon :icon="faClose"
+      /></i>
+
+      <i  class="floatRight marginRight" title="addChild" @click.stop="addChild()"
+        ><FontAwesomeIcon :icon="faPlus"
       /></i>
     </div>
 

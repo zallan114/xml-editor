@@ -12,6 +12,7 @@
             v-model="nodeName"
             class="mControl"
             type="text"
+            autofocus="autofocus"
             placeholder=""
           />
         </div>
@@ -24,10 +25,12 @@
           </select>
         </div>
         <div v-if="showText">
-          Node Value:
+          <span class="mLabel">Node Value: </span>
           <input
+            ref="nodeValueInput"
             v-model="nodeValue"
             type="text"
+            class="mControl"
             placeholder="please input text value for this node..."
           />
         </div>
@@ -54,6 +57,15 @@ export default {
       return this.nodeType !== "_node";
     },
   },
+  watch: {
+    nodeType(newVal) {
+      if (newVal !== "_node") {
+        this.$nextTick(() => {
+          this.$refs.nodeValueInput.focus();
+        });
+      }
+    },
+  },
   methods: {
     closeModal() {
       this.$emit("close");
@@ -73,6 +85,24 @@ export default {
     },
   },
 };
+
+
+/**
+ VUE3 style:
+
+
+  const nodeValueInput = ref(null);
+  watch(nodeType, (newValue) => {
+      if (newValue === '_text') {
+        nextTick(() => {
+          if (nodeValueInput.value) {
+            nodeValueInput.value.focus();
+          }
+        });
+      } 
+    });
+
+*/
 </script>
 
 <style scoped>
